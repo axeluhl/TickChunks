@@ -1,0 +1,22 @@
+name: TickChunks
+description: Ensure that certain chunks keep receiving ticks when loaded; combine with tickchunks plugin!
+main: uhl.mc.tickchunks.TickChunksPlugin
+version: 1.0
+load: POSTWORLD
+
+softdepend: [tickchunks]
+
+commands:
+    tickchunks:
+        aliases: tc
+        description: Ensures that the chunk the player is currently in continues to receive ticks or is released from this state. Subcommands: k[eep], r[elease]
+
+permissions:
+   tickchunks.help:
+      default: op
+   tickchunks.reload:
+      default: op
+   tickchunks.keep:
+      default: op
+   tickchunks.release:
+      default: op
