@@ -9,7 +9,8 @@ softdepend: [tickchunks]
 commands:
     tickchunks:
         aliases: tc
-        description: Ensures that the chunk the player is currently in continues to receive ticks or is released from this state. Subcommands: k[eep], r[elease]
+        description: "Ensures that the chunk the player is currently in continues to receive ticks or is released from this state. Subcommands: k[eep], r[elease]"
+        usage: "Usage: /tc [ k[eep] | r[elease] ]"
 
 permissions:
    tickchunks.help:
