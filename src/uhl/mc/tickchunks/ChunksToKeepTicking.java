@@ -12,76 +12,72 @@ import java.util.Set;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import net.minecraft.server.ChunkCoordIntPair;
-
 /**
  * Manages the collection of chunk coordinates that are to be kept ticking. Such an object can be constructed from a
  * {@link YamlConfiguration} object if such object was produced by an instance of this class.
  */
 public class ChunksToKeepTicking {
-    private final Map<Integer, Set<ChunkCoordIntPair>> coordinatesOfChunksToKeepTickingPerWorldDimension;
+    private final Map<String, Set<ChunkCoordinate>> coordinatesOfChunksToKeepTickingPerWorldName;
     private static final String DATA_KEY = "world-dimensions";
     private static final String X_KEY = "x";
     private static final String Z_KEY = "z";
 
     public ChunksToKeepTicking() {
-        coordinatesOfChunksToKeepTickingPerWorldDimension = Collections.synchronizedMap(new HashMap<>());
+        coordinatesOfChunksToKeepTickingPerWorldName = Collections.synchronizedMap(new HashMap<>());
     }
 
-    void addChunk(int worldDimension, int x, int z) {
-        Set<ChunkCoordIntPair> set = coordinatesOfChunksToKeepTickingPerWorldDimension.get(worldDimension);
+    void addChunk(String worldName, int x, int z) {
+        Set<ChunkCoordinate> set = coordinatesOfChunksToKeepTickingPerWorldName.get(worldName);
         if (set == null) {
             set = new HashSet<>();
-            coordinatesOfChunksToKeepTickingPerWorldDimension.put(worldDimension, set);
+            coordinatesOfChunksToKeepTickingPerWorldName.put(worldName, set);
         }
-        set.add(new ChunkCoordIntPair(x, z));
+        set.add(new ChunkCoordinate(x, z));
     }
 
-    void removeChunk(int worldDimension, int x, int z) {
-        Set<ChunkCoordIntPair> set = coordinatesOfChunksToKeepTickingPerWorldDimension.get(worldDimension);
+    void removeChunk(String worldName, int x, int z) {
+        Set<ChunkCoordinate> set = coordinatesOfChunksToKeepTickingPerWorldName.get(worldName);
         if (set != null) {
-            set.remove(new ChunkCoordIntPair(x, z));
+            set.remove(new ChunkCoordinate(x, z));
             if (set.isEmpty()) {
-                coordinatesOfChunksToKeepTickingPerWorldDimension.remove(worldDimension);
+                coordinatesOfChunksToKeepTickingPerWorldName.remove(worldName);
             }
         }
     }
 
     void load(YamlConfiguration data) {
         final ConfigurationSection coordinates = data.getConfigurationSection(DATA_KEY);
-        for (final String dimensionNumberAsString : coordinates.getKeys(/* deep */ false)) {
-            final Set<ChunkCoordIntPair> chunkCoordinatePairs = new HashSet<>();
-            for (final Map<?, ?> coordinate : coordinates.getMapList(dimensionNumberAsString)) {
-                final ChunkCoordIntPair c = new ChunkCoordIntPair(((Number) coordinate.get(X_KEY)).intValue(),
+        for (final String worldName : coordinates.getKeys(/* deep */ false)) {
+            final Set<ChunkCoordinate> chunkCoordinatePairs = new HashSet<>();
+            for (final Map<?, ?> coordinate : coordinates.getMapList(worldName)) {
+                final ChunkCoordinate c = new ChunkCoordinate(((Number) coordinate.get(X_KEY)).intValue(),
                         ((Number) coordinate.get(Z_KEY)).intValue());
                 chunkCoordinatePairs.add(c);
             }
-            coordinatesOfChunksToKeepTickingPerWorldDimension.put(Integer.valueOf(dimensionNumberAsString),
-                    chunkCoordinatePairs);
+            coordinatesOfChunksToKeepTickingPerWorldName.put(worldName, chunkCoordinatePairs);
         }
     }
 
     YamlConfiguration getData() {
         final YamlConfiguration result = new YamlConfiguration();
         final Map<String, List<Map<String, Integer>>> coordinatesAsMap = new HashMap<>();
-        synchronized (coordinatesOfChunksToKeepTickingPerWorldDimension) {
-            for (final Entry<Integer, Set<ChunkCoordIntPair>> c : coordinatesOfChunksToKeepTickingPerWorldDimension
-                    .entrySet()) {
+        synchronized (coordinatesOfChunksToKeepTickingPerWorldName) {
+            for (final Entry<String, Set<ChunkCoordinate>> c : coordinatesOfChunksToKeepTickingPerWorldName.entrySet()) {
                 final List<Map<String, Integer>> coordinatesList = new ArrayList<>();
-                for (final ChunkCoordIntPair coord : c.getValue()) {
+                for (final ChunkCoordinate coord : c.getValue()) {
                     final Map<String, Integer> mapForCoordinate = new HashMap<>();
-                    mapForCoordinate.put(X_KEY, coord.x);
-                    mapForCoordinate.put(Z_KEY, coord.z);
+                    mapForCoordinate.put(X_KEY, coord.getX());
+                    mapForCoordinate.put(Z_KEY, coord.getZ());
                     coordinatesList.add(mapForCoordinate);
                 }
-                coordinatesAsMap.put(c.getKey().toString(), coordinatesList);
+                coordinatesAsMap.put(c.getKey(), coordinatesList);
             }
         }
         result.createSection(DATA_KEY, coordinatesAsMap);
         return result;
     }
 
-    public Iterable<Map.Entry<Integer, Set<ChunkCoordIntPair>>> getTickingChunksPerWorldDimension() {
-        return Collections.unmodifiableMap(coordinatesOfChunksToKeepTickingPerWorldDimension).entrySet();
+    public Iterable<Map.Entry<String, Set<ChunkCoordinate>>> getTickingChunksPerWorldName() {
+        return Collections.unmodifiableMap(coordinatesOfChunksToKeepTickingPerWorldName).entrySet();
     }
 }
