@@ -42,11 +42,11 @@ public class TickChunksPlugin extends JavaPlugin {
                 final PlayerChunk playerChunk = playerChunkMap.getPlayerChunk(x, z);
                 if (args[0].toLowerCase().startsWith("k")) {
                     result = true;
-                    if (playerChunk.isKeptTickingEvenIfEmpty()) {
+                    if (playerChunk.isSticky()) {
                         sender.sendMessage("Chunk (" + x + "," + z + ") is already being kept in PlayerChunkMap.");
                     } else {
                         keepChunkTicking(world.getName(), playerChunk);
-                        playerChunk.keepTickingEvenIfEmpty();
+                        playerChunk.setSticky(true);
                         sender.sendMessage("Chunk (" + x + "," + z
                                 + ") is now being kept in PlayerChunkMap even when no player has it in sight.");
                         final Plugin keepChunksPlugin = Bukkit.getServer().getPluginManager()
@@ -67,7 +67,7 @@ public class TickChunksPlugin extends JavaPlugin {
                     }
                 } else if (args[0].toLowerCase().startsWith("r")) {
                     result = true;
-                    if (!playerChunk.isKeptTickingEvenIfEmpty()) {
+                    if (!playerChunk.isSticky()) {
                         sender.sendMessage("Chunk (" + x + "," + z + ") was not being kept in PlayerChunkMap.");
                     } else {
                         releaseChunk(world.getName(), playerChunk);
@@ -93,13 +93,13 @@ public class TickChunksPlugin extends JavaPlugin {
     }
 
     private void keepChunkTicking(String worldName, PlayerChunk playerChunk) {
-        playerChunk.keepTickingEvenIfEmpty();
+        playerChunk.setSticky(true);
         chunksToKeepTicking.addChunk(worldName, playerChunk.getChunk().getX(), playerChunk.getChunk().getZ());
         updateDataFile();
     }
 
     private void releaseChunk(String worldName, PlayerChunk playerChunk) {
-        playerChunk.releaseIfEmpty();
+        playerChunk.setSticky(false);
         chunksToKeepTicking.removeChunk(worldName, playerChunk.getChunk().getX(), playerChunk.getChunk().getZ());
         updateDataFile();
     }
