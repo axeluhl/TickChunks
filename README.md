@@ -31,4 +31,15 @@ download BuildTools.jar and run them. See also https://www.spigotmc.org/wiki/bui
     java -jar BuildTools.jar --dont-update
 ```
 
-This will give a spigot-X.YY.Z.jar with the necessary patches in place in your ``<my-spigot-dir>`` directory. Have fun.
+This will give a spigot-X.YY.Z.jar with the necessary patches in place in your ``<my-spigot-dir>`` directory.
+
+To build this plug-in against the Spigot JAR create as per the instructions above clone this plug-ins Git
+repository and import into Eclipse. Go to the project's "Java Build Path" settings and set the variable
+``Spigot`` to your choice for ``<my-spigot-dir>`` above. The project should then build without errors because
+the spigot-X.YY.Z.jar file that you build before should be found by Eclipse.
+
+Next, double-click the ``createjar.jardesc`` file in the project. It will create the TickChunks.jar file in your
+Eclipse workspace directory. Move the resulting ``TickChunks.jar`` file to your server's ``plugins/`` directory.
+This is assuming that your server runs off the ``spigot-X.YY.Z.jar`` compiled above.
+
+Feedback to spigot@homemp3.dyndns.org. Have fun.
