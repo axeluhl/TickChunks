@@ -10,8 +10,6 @@ import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.PlayerChunk;
-import org.bukkit.PlayerChunkMap;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -36,18 +34,14 @@ public class TickChunksPlugin extends JavaPlugin {
                 final Player player = (Player) sender;
                 final org.bukkit.World world = player.getWorld();
                 final Chunk chunk = player.getLocation().getChunk();
-                int x = chunk.getX();
-                int z = chunk.getZ();
-                final PlayerChunkMap playerChunkMap = world.getPlayerChunkMap();
-                final PlayerChunk playerChunk = playerChunkMap.getPlayerChunk(x, z);
                 if (args[0].toLowerCase().startsWith("k")) {
                     result = true;
-                    if (playerChunk.isSticky()) {
-                        sender.sendMessage("Chunk (" + x + "," + z + ") is already being kept in PlayerChunkMap.");
+                    if (chunk.isSticky()) {
+                        sender.sendMessage("Chunk (" + chunk.getX() + "," + chunk.getZ() + ") is already being kept in PlayerChunkMap.");
                     } else {
-                        keepChunkTicking(world.getName(), playerChunk);
-                        playerChunk.setSticky(true);
-                        sender.sendMessage("Chunk (" + x + "," + z
+                        keepChunkTicking(world.getName(), chunk);
+                        chunk.setSticky(true);
+                        sender.sendMessage("Chunk (" + chunk.getX() + "," + chunk.getZ()
                                 + ") is now being kept in PlayerChunkMap even when no player has it in sight.");
                         final Plugin keepChunksPlugin = Bukkit.getServer().getPluginManager()
                                 .getPlugin("KeepChunks");
@@ -55,9 +49,9 @@ public class TickChunksPlugin extends JavaPlugin {
                             if (debug) {
                                 getLogger()
                                         .info("Found KeepChunks plugin. Requesting chunk [" +
-                                                playerChunk.getChunk().getX() + "," + playerChunk.getChunk().getZ() + "] to keep loaded");
+                                                chunk.getX() + "," + chunk.getZ() + "] to keep loaded");
                             }
-                            String commandLine = "kc kc " + x + " " + z + " " + world.getName();
+                            String commandLine = "kc kc " + chunk.getX() + " " + chunk.getZ() + " " + world.getName();
                             final boolean keepChunksResult = Bukkit.getServer().dispatchCommand(sender, commandLine);
                             if (debug) {
                                 getLogger().info(
@@ -67,16 +61,16 @@ public class TickChunksPlugin extends JavaPlugin {
                     }
                 } else if (args[0].toLowerCase().startsWith("r")) {
                     result = true;
-                    if (!playerChunk.isSticky()) {
-                        sender.sendMessage("Chunk (" + x + "," + z + ") was not being kept in PlayerChunkMap.");
+                    if (!chunk.isSticky()) {
+                        sender.sendMessage("Chunk (" + chunk.getX() + "," + chunk.getZ() + ") was not being kept in PlayerChunkMap.");
                     } else {
-                        releaseChunk(world.getName(), playerChunk);
-                        sender.sendMessage("Chunk (" + x + "," + z
+                        releaseChunk(world.getName(), chunk);
+                        sender.sendMessage("Chunk (" + chunk.getX() + "," + chunk.getZ()
                                 + ") is now being released from PlayerChunkMap when no player has it in sight.");
                         if (Bukkit.getServer().getPluginManager().getPlugin("KeepChunks") != null) {
                             sender.sendMessage(
                                     "Consider releasing the chunk also from the KeepChunks plugin using command /kc rc "
-                                            + x + " " + z + " " + world.getName());
+                                            + chunk.getX() + " " + chunk.getZ() + " " + world.getName());
                         }
                     }
                 } else {
@@ -92,15 +86,15 @@ public class TickChunksPlugin extends JavaPlugin {
         return result;
     }
 
-    private void keepChunkTicking(String worldName, PlayerChunk playerChunk) {
-        playerChunk.setSticky(true);
-        chunksToKeepTicking.addChunk(worldName, playerChunk.getChunk().getX(), playerChunk.getChunk().getZ());
+    private void keepChunkTicking(String worldName, Chunk chunk) {
+        chunk.setSticky(true);
+        chunksToKeepTicking.addChunk(worldName, chunk.getX(), chunk.getZ());
         updateDataFile();
     }
 
-    private void releaseChunk(String worldName, PlayerChunk playerChunk) {
-        playerChunk.setSticky(false);
-        chunksToKeepTicking.removeChunk(worldName, playerChunk.getChunk().getX(), playerChunk.getChunk().getZ());
+    private void releaseChunk(String worldName, Chunk chunk) {
+        chunk.setSticky(false);
+        chunksToKeepTicking.removeChunk(worldName, chunk.getX(), chunk.getZ());
         updateDataFile();
     }
 
@@ -126,7 +120,7 @@ public class TickChunksPlugin extends JavaPlugin {
                     if (debug) {
                         getLogger().info("keeping chunk " + coord + " in world '"+worldServer.getName()+"' ticking");
                     }
-                    worldServer.getPlayerChunkMap().keepPlayerChunkTicking(coord.getX(), coord.getZ());
+                    worldServer.getChunkAt(coord.getX(), coord.getZ()).setSticky(true);
                 }
             } else {
                 getLogger().warning("Couldn't keep chunks for world "+chunkCoordinatesForWorldDimension.getKey().toString()+
