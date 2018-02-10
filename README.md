@@ -20,13 +20,21 @@ version. See https://hub.spigotmc.org/jira/browse/SPIGOT-3747 which describes th
 https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/pull-requests/78/overview which describes
 the pull request that contains the Bukkit/CraftBukkit extensions required by this plug-in. Clone
 https://donaldduck70@hub.spigotmc.org/stash/scm/~donaldduck70/spigot.git if you have access to the Spigot Hub,
-or https://github.com/axeluhl/SPIGOT-3747.git for everyone else and checkout SPIGOT-3747,
+or https://github.com/axeluhl/SPIGOT-3747.git for everyone else; grab the correct patches for SPIGOT-3747 for Bukkit and CraftBukkit, either from the corresponding Stash repositories at https://donaldduck70@hub.spigotmc.org/stash/scm/~donaldduck70/Bukkit.git and https://donaldduck70@hub.spigotmc.org/stash/scm/~donaldduck70/CraftBukkit.git, respectively (or get it from Github if you don't have a Stash account; see below) and checkout SPIGOT-3747,
 download BuildTools.jar and run them. See also https://www.spigotmc.org/wiki/buildtools/.
 
 ```
     mkdir <my-spigot-dir>
     cd <my-spigot-dir>
     git clone https://github.com/axeluhl/SPIGOT-3747.git Spigot --branch SPIGOT-3747
+    git clone https://github.com/axeluhl/Bukkit.git
+    cd Bukkit
+    git fetch origin master:master
+    cd ..
+    git clone https://github.com/axeluhl/CraftBukkit.git
+    cd CraftBukkit
+    git fetch origin master:master
+    cd ..
     wget "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
     java -jar BuildTools.jar --dont-update
 ```
