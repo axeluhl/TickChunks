@@ -23,19 +23,22 @@ https://donaldduck70@hub.spigotmc.org/stash/scm/~donaldduck70/spigot.git if you 
 or https://github.com/axeluhl/SPIGOT-3747.git for everyone else; grab the correct patches for SPIGOT-3747 for Bukkit and CraftBukkit, either from the corresponding Stash repositories at https://donaldduck70@hub.spigotmc.org/stash/scm/~donaldduck70/Bukkit.git and https://donaldduck70@hub.spigotmc.org/stash/scm/~donaldduck70/CraftBukkit.git, respectively (or get it from Github if you don't have a Stash account; see below) and checkout SPIGOT-3747,
 download BuildTools.jar and run them. See also https://www.spigotmc.org/wiki/buildtools/.
 
+If on windows, start with this:
+```
+    git config --global --replace-all core.autocrlf true
+```
+Then continue like this:
 ```
     mkdir <my-spigot-dir>
     cd <my-spigot-dir>
-    git clone https://github.com/axeluhl/SPIGOT-3747.git Spigot --branch SPIGOT-3747
+    git clone https://github.com/axeluhl/SPIGOT-3747.git Spigot
     git clone https://github.com/axeluhl/Bukkit.git
-    cd Bukkit
-    git fetch origin master:master
-    cd ..
     git clone https://github.com/axeluhl/CraftBukkit.git
-    cd CraftBukkit
-    git fetch origin master:master
-    cd ..
     wget "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
+```
+Also, on Windows, make sure not to use Cygwin for the following because the autocrlf setting from above
+will cause scripts to contain CR characters which the Cygwin bash doesn't like.
+```
     java -jar BuildTools.jar --dont-update
 ```
 
