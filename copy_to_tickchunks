@@ -9,8 +9,8 @@ if [ "$1" = "" ]; then
 else
   kc_data_yml="$1"
   echo "world-dimensions:"
-  for world_name in `cat "$kc_data_yml" | grep "^- [0-9-]*#[0-9-]#" | sed -e 's/^-.*#.*#\(.*\)$/\1/' | sort -u`; do
+  for world_name in `cat "$kc_data_yml" | grep "^- [0-9-]*#[0-9-]*#" | sed -e 's/^-.*#.*#\(.*\)$/\1/' | sort -u`; do
     echo "  ${world_name}:"
-    cat "$kc_data_yml" | grep "^- [0-9-]*#[0-9-]#${world_name}" | sed -e 's/^- \([0-9-]*\)#\([0-9-]*\)#.*$/  - x: \1\n    z: \2/'
+    cat "$kc_data_yml" | grep "^- [0-9-]*#[0-9-]*#${world_name}" | sed -e 's/^- \([0-9-]*\)#\([0-9-]*\)#.*$/  - x: \1\n    z: \2/'
   done
 fi
