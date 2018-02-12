@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -35,42 +36,46 @@ public class TickChunksPlugin extends JavaPlugin {
                 final org.bukkit.World world = player.getWorld();
                 final Chunk chunk = player.getLocation().getChunk();
                 if (args[0].toLowerCase().startsWith("k")) {
-                    result = true;
-                    if (chunk.isSticky()) {
-                        sender.sendMessage("Chunk (" + chunk.getX() + "," + chunk.getZ() + ") is already being kept in PlayerChunkMap.");
-                    } else {
-                        keepChunkTicking(world.getName(), chunk);
-                        chunk.setSticky(true);
-                        sender.sendMessage("Chunk (" + chunk.getX() + "," + chunk.getZ()
-                                + ") is now being kept in PlayerChunkMap even when no player has it in sight.");
-                        final Plugin keepChunksPlugin = Bukkit.getServer().getPluginManager()
-                                .getPlugin("KeepChunks");
-                        if (keepChunksPlugin != null) {
-                            if (debug) {
-                                getLogger()
-                                        .info("Found KeepChunks plugin. Requesting chunk [" +
-                                                chunk.getX() + "," + chunk.getZ() + "] to keep loaded");
-                            }
-                            String commandLine = "kc kc " + chunk.getX() + " " + chunk.getZ() + " " + world.getName();
-                            final boolean keepChunksResult = Bukkit.getServer().dispatchCommand(sender, commandLine);
-                            if (debug) {
-                                getLogger().info(
-                                        "KeepChunks command \"" + commandLine + "\" returned " + keepChunksResult);
+                    result = checkPermission(player, "tickchunks.keep");
+                    if (result) {
+                        if (chunk.isSticky()) {
+                            sender.sendMessage("Chunk (" + chunk.getX() + "," + chunk.getZ() + ") is already being kept in PlayerChunkMap.");
+                        } else {
+                            keepChunkTicking(world.getName(), chunk);
+                            chunk.setSticky(true);
+                            sender.sendMessage("Chunk (" + chunk.getX() + "," + chunk.getZ()
+                                    + ") is now being kept in PlayerChunkMap even when no player has it in sight.");
+                            final Plugin keepChunksPlugin = Bukkit.getServer().getPluginManager()
+                                    .getPlugin("KeepChunks");
+                            if (keepChunksPlugin != null) {
+                                if (debug) {
+                                    getLogger()
+                                            .info("Found KeepChunks plugin. Requesting chunk [" +
+                                                    chunk.getX() + "," + chunk.getZ() + "] to keep loaded");
+                                }
+                                String commandLine = "kc kc coords " + chunk.getX() + " " + chunk.getZ() + " " + world.getName();
+                                final boolean keepChunksResult = Bukkit.getServer().dispatchCommand(sender, commandLine);
+                                if (debug) {
+                                    getLogger().info(
+                                            "KeepChunks command \"" + commandLine + "\" returned " + keepChunksResult);
+                                }
                             }
                         }
                     }
                 } else if (args[0].toLowerCase().startsWith("r")) {
-                    result = true;
-                    if (!chunk.isSticky()) {
-                        sender.sendMessage("Chunk (" + chunk.getX() + "," + chunk.getZ() + ") was not being kept in PlayerChunkMap.");
-                    } else {
-                        releaseChunk(world.getName(), chunk);
-                        sender.sendMessage("Chunk (" + chunk.getX() + "," + chunk.getZ()
-                                + ") is now being released from PlayerChunkMap when no player has it in sight.");
-                        if (Bukkit.getServer().getPluginManager().getPlugin("KeepChunks") != null) {
-                            sender.sendMessage(
-                                    "Consider releasing the chunk also from the KeepChunks plugin using command /kc rc "
-                                            + chunk.getX() + " " + chunk.getZ() + " " + world.getName());
+                    result = checkPermission(player,  "tickchunks.release");
+                    if (result) {
+                        if (!chunk.isSticky()) {
+                            sender.sendMessage("Chunk (" + chunk.getX() + "," + chunk.getZ() + ") was not being kept in PlayerChunkMap.");
+                        } else {
+                            releaseChunk(world.getName(), chunk);
+                            sender.sendMessage("Chunk (" + chunk.getX() + "," + chunk.getZ()
+                                    + ") is now being released from PlayerChunkMap when no player has it in sight.");
+                            if (Bukkit.getServer().getPluginManager().getPlugin("KeepChunks") != null) {
+                                sender.sendMessage(
+                                        "Consider releasing the chunk also from the KeepChunks plugin using command /kc rc coords "
+                                                + chunk.getX() + " " + chunk.getZ() + " " + world.getName());
+                            }
                         }
                     }
                 } else {
@@ -82,6 +87,15 @@ public class TickChunksPlugin extends JavaPlugin {
             }
         } else {
             result = false;
+        }
+        return result;
+    }
+
+    private boolean checkPermission(final Player player, String permission) {
+        boolean result = player.hasPermission(permission);
+        if (!result) {
+            player.sendMessage(ChatColor.RED
+                    + "I'm sorry, but you need permission "+permission+" to perform this command. Please contact the server administrators if you believe that this is in error.");
         }
         return result;
     }
