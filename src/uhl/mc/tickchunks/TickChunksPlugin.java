@@ -53,7 +53,7 @@ public class TickChunksPlugin extends JavaPlugin {
                                             .info("Found KeepChunks plugin. Requesting chunk [" +
                                                     chunk.getX() + "," + chunk.getZ() + "] to keep loaded");
                                 }
-                                String commandLine = "kc kc coords " + chunk.getX() + " " + chunk.getZ() + " " + world.getName();
+                                String commandLine = "kc keepchunk coords " + chunk.getX() + " " + chunk.getZ() + " " + world.getName();
                                 final boolean keepChunksResult = Bukkit.getServer().dispatchCommand(sender, commandLine);
                                 if (debug) {
                                     getLogger().info(
